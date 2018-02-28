@@ -1,0 +1,18 @@
+{
+    "presets": [
+        "env",
+        "stage-0",
+        "flow"
+    ],
+    "plugins": [
+        "add-module-exports",
+        "transform-runtime",
+        [ "module-resolver", {
+            "root": [ "./" ],
+            "alias": {
+                "src": "./src",
+                "dist": "./dist"
+            }
+        } ]
+    ]
+}
