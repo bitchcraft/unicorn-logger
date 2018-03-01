@@ -1,6 +1,6 @@
 {
 	"name": "@bitchcraft/unicorn-logger",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"private": false,
 	"description": "A fancy wrapper for debug with full Console Web API support.",
 	"license": "BSD-3-Clause",
@@ -54,5 +54,5 @@
 	"author": "Josh Li (https://github.com/maddrag0n)",
 	"contributors": [],
 	"main": "dist/unicorn-logger.es5.js",
-	"repository": "https://github.com/maddrag0n/unicorn-logger"
+	"repository": "https://github.com/bitchcraft/unicorn-logger"
 }
