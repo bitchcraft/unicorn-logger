@@ -1,17 +1,19 @@
 # @bitchcraft/unicorn-logger
 
-A fancy wrapper for [debug](https://yarnpkg.com/en/package/debug) that supports all Console Web API methods and allows chaining.
-
-## Installation
-
 ```
              ,
           ‸„/,
          / (×\
-   ,----’ / `-'           
-  /( JL_( )   ́ ́ ́        
+   ,----’ / `-'        UnicornLogger 1.0.0
+  /( JL_( )   ́ ́ ́   
  ‘ //   //    ́ ́ ́ ́ ́  
    ``   ``   ́ ́ ́ ́ ́ ́ ́ ́
+```
+A fancy wrapper for [debug](https://yarnpkg.com/en/package/debug) that supports all Console Web API methods and allows chaining.
+
+## Installation
+
+```sh
 $ yarn add @bitchcraft/unicorn-logger
 $ npm install -P @bitchcraft/unicorn-logger
 ```
@@ -72,10 +74,10 @@ logger.group('new console group')
 | [warn](https://developer.mozilla.org/en-US/docs/Web/API/Console/warn)                     | ...obj: Any                            | Outputs a warning message to the console.                                                                                                                                                                                                                                                           |
 
 
-### ES2015+ import
+### ES2015+ import with flow types
 
 ```js
-// babel-env, -stage-0
+// babel: env, stage-0, flow
 import UnicornLogger from '@bitchcraft/unicorn-logger/src/UnicornLogger';
 ```
 
