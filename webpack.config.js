@@ -3,18 +3,12 @@ const path = require('path');
 const webpack = require('webpack');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
-const config = {
+const mainConfig = {
 	context: path.resolve(__dirname),
 	entry: {
 		'unicorn-logger': [
 			'./src/UnicornLogger.js',
 		],
-	},
-	output: {
-		path: path.resolve(__dirname, 'dist'),
-		filename: '[name].es5.js',
-		library: 'UnicornLogger',
-		libraryTarget: 'umd',
 	},
 	plugins: [
 		new webpack.NoEmitOnErrorsPlugin(),
@@ -44,15 +38,47 @@ const config = {
 };
 
 if (process.env.NODE_ENV === 'development') {
-	config.devtool = 'inline-source-map';
+	mainConfig.devtool = 'inline-source-map';
 
-} else if (process.env.NODE_ENV === 'production') {
-
-	config.plugins.push(new BundleAnalyzerPlugin({
-		analyzerMode: 'static',
-		openAnalyzer: false,
-		reportFilename: 'es5-bundle-analytics.html',
-	}));
 }
 
-module.exports = config;
+const browserConfig = Object.assign({}, mainConfig, {
+	output: {
+		path: path.resolve(__dirname, 'lib'),
+		filename: '[name].browser.es5.js',
+		library: 'UnicornLogger',
+		libraryTarget: 'umd',
+	},
+});
+
+const nodeConfig = Object.assign({}, mainConfig, {
+	target: 'node',
+	output: {
+		path: path.resolve(__dirname, 'lib'),
+		filename: '[name].node.es5.js',
+		library: 'UnicornLogger',
+		libraryTarget: 'umd',
+	},
+});
+
+if (process.env.NODE_ENV === 'production') {
+
+	const browserPlugins = Array.from(browserConfig.plugins);
+	const nodePlugins = Array.from(nodeConfig.plugins);
+
+	browserPlugins.push(new BundleAnalyzerPlugin({
+		analyzerMode: 'static',
+		openAnalyzer: false,
+		reportFilename: 'es5-browser-bundle-analytics.html',
+	}));
+	nodePlugins.push(new BundleAnalyzerPlugin({
+		analyzerMode: 'static',
+		openAnalyzer: false,
+		reportFilename: 'es5-node-bundle-analytics.html',
+	}));
+
+	browserConfig.plugins = browserPlugins;
+	nodeConfig.plugins = nodePlugins;
+}
+
+module.exports = [browserConfig, nodeConfig];
