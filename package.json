@@ -53,6 +53,6 @@
 	},
 	"author": "Josh Li (https://github.com/maddrag0n)",
 	"contributors": [],
-	"main": "dist/unicorn-logger.es5.js",
+	"main": "lib/index.js",
 	"repository": "https://github.com/bitchcraft/unicorn-logger"
 }
