@@ -47,7 +47,7 @@
 	},
 	"scripts": {
 		"test": "node_modules/jest/bin/jest.js",
-		"prestart": "yarn install; yarn run test; if [ -e ./dist ]; then rm -rf ./dist; fi;",
+		"prestart": "yarn install && yarn run test",
 		"start": "yarn run bundle",
 		"bundle": "NODE_ENV=production ./node_modules/webpack/bin/webpack.js --progress"
 	},
