@@ -1,6 +1,6 @@
 {
 	"name": "@bitchcraft/unicorn-logger",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"private": false,
 	"description": "A fancy wrapper for debug with full Console Web API support.",
 	"license": "BSD-3-Clause",
@@ -52,7 +52,12 @@
 		"bundle": "NODE_ENV=production ./node_modules/webpack/bin/webpack.js --progress"
 	},
 	"author": "Josh Li (https://github.com/maddrag0n)",
-	"contributors": [],
+	"contributors": [
+		{
+			"name": "Thiemo Krause",
+			"url": "https://github.com/thiemok"
+		}
+	],
 	"main": "lib/index.js",
 	"repository": "https://github.com/bitchcraft/unicorn-logger"
 }
