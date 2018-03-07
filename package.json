@@ -52,7 +52,12 @@
 		"bundle": "NODE_ENV=production ./node_modules/webpack/bin/webpack.js --progress"
 	},
 	"author": "Josh Li (https://github.com/maddrag0n)",
-	"contributors": [],
+	"contributors": [
+		{
+			"name": "Thiemo Krause",
+			"url": "https://github.com/thiemok"
+		}
+	],
 	"main": "lib/index.js",
 	"repository": "https://github.com/bitchcraft/unicorn-logger"
 }
