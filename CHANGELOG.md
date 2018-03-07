@@ -1,5 +1,9 @@
 # 1.1.0
 
+- fix build for browser that was introduced with 1.1.0
+
+# 1.1.0
+
 - add build for nodejs (fixes [#1](https://github.com/bitchcraft/unicorn-logger/issues/1))
 - remove utf8/16 chars from donkeycorn
 
