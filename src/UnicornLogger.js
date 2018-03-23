@@ -3,7 +3,16 @@
 import logFactory from 'debug';
 import { OrderedSet as ImmutableOrderedSet } from 'immutable';
 
-import type { UnicornLoggerMiddleware } from 'UnicornLoggerMiddleware';
+import type { UnicornLoggerMiddleware } from 'src/UnicornLoggerMiddleware';
+
+type Options = {
+	cleaner?: Array<*> => Array<*>,
+	maxTimers?: number,
+};
+
+interface Extensible {
+	[key: string]: (...args: Array<*>) => * | void,
+}
 
 const consoleLog = typeof console.log === 'function' ? console.log.bind(console) : () => {};
 const consoleInfo = typeof console.info === 'function' ? console.info.bind(console) : consoleLog;
@@ -36,11 +45,6 @@ const consoleTable = (
 
 const defaultCleaner = (args: Array<*>) => args;
 
-type Options = {
-	cleaner?: Array<*> => Array<*>,
-	maxTimers?: number,
-};
-
 /**
  * ```js
  * import UnicornLogger from '@bitchcraft/unicorn-logger';
@@ -66,7 +70,7 @@ type Options = {
  *     .timeNed('my-group-1')
  *     .groupEnd();
  */
-class UnicornLogger {
+class UnicornLogger implements Extensible {
 	assert: (...args: Array<*>) => UnicornLogger;
 	clear: () => UnicornLogger;
 	group: (...args: Array<*>) => UnicornLogger;
@@ -82,14 +86,15 @@ class UnicornLogger {
 	trace: (...args: Array<*>) => UnicornLogger;
 	warn: (...args: Array<*>) => UnicornLogger;
 
+	$key: string;
+	$value: (...args: Array<*>) => UnicornLogger | void;
+
 	static globalMiddlewares: ImmutableOrderedSet<UnicornLoggerMiddleware> = new ImmutableOrderedSet();
 	middlewares: ImmutableOrderedSet<UnicornLoggerMiddleware>;
 
 	cleaner: Array<*> => Array<*>;
 	maxTimers: number;
 	timers: Map<*, number>;
-	// $FlowIssue can't get accessor syntax to work on classes
-	//[string]: (...args: Array<*>) => UnicornLogger;
 
 
 	/**
@@ -315,7 +320,9 @@ class UnicornLogger {
 	}
 
 	static registerMethod(methodName: string) {
+		/* eslint-disable no-prototype-builtins */
 		if (UnicornLogger.hasOwnProperty(methodName)) return typeof UnicornLogger.prototype[methodName] === 'function';
+		/* eslint-enable no-prototype-builtins */
 		UnicornLogger.prototype[methodName] = UnicornLogger.applyMethod(methodName);
 		return true;
 	}

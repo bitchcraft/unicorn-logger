@@ -1,5 +1,5 @@
 // @flow
-import type UnicornLogger from 'UnicornLogger';
+import type UnicornLogger from 'src/UnicornLogger';
 
 export interface UnicornLoggerMiddleware {
 	initialize?: (logger: UnicornLogger | Class<UnicornLogger>) => void;
