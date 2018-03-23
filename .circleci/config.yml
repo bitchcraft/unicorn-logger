@@ -1,0 +1,64 @@
+defaults: &defaults
+  working_directory: ~/repo
+  docker:
+    - image: circleci/node:carbon
+
+version: 2
+jobs:
+  build:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install deps
+          command: yarn install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+#      - run:
+#          name: test
+#          command: yarn run test src
+      - run:
+          name: bundle
+          command: yarn run bundle
+      - persist_to_workspace:
+          root: lib
+          paths:
+            - unicorn-logger.browser.es5.js
+            - unicorn-logger.node.es5.js
+  deploy:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: lib
+      - run:
+          name: npm token
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run:
+          name: bump version
+          command: npm --no-git-tag-version version $CIRCLE_TAG
+      - run:
+          name: publish
+          command: npm publish
+      - store_artifacts:
+          path: lib/es5-browser-bundle-analytics.html
+      - store_artifacts:
+          path: lib/es5-node-bundle-analytics.html
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /[0-9]+(\.[0-9]+)*/

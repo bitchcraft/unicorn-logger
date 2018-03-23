@@ -11,6 +11,7 @@
 ```
 A fancy wrapper for [debug](https://yarnpkg.com/en/package/debug) that supports all Console Web API methods and allows chaining.
 
+[![CircleCI](https://circleci.com/gh/bitchcraft/unicorn-logger.svg?style=svg&circle-token=cdf5f14ad106b6ae7eaf2f42177830b9484f3d86)](https://circleci.com/gh/bitchcraft/unicorn-logger)
 ## Installation
 
 ```sh

@@ -93,3 +93,7 @@ app/__tests__/__snapshots__/
 /app/__tests__/__snapshots__/app.test.jsx.snap
 /.cache-loader
 /docs
+
+lib/es5-browser-bundle-analytics\.html
+lib/es5-node-bundle-analytics\.html
+*.es5.js

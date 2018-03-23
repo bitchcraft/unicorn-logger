@@ -46,10 +46,10 @@
 		]
 	},
 	"scripts": {
-		"test": "node_modules/jest/bin/jest.js",
+		"test": "jest",
 		"prestart": "yarn install && yarn run test",
 		"start": "yarn run bundle",
-		"bundle": "NODE_ENV=production ./node_modules/webpack/bin/webpack.js --progress"
+		"bundle": "NODE_ENV=production webpack --progress"
 	},
 	"author": "Josh Li (https://github.com/maddrag0n)",
 	"contributors": [
