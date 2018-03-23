@@ -310,7 +310,7 @@ class UnicornLogger implements Extensible {
 	}
 
 	wrapMiddlewares(methodName: string, fn: (args: Array<*>) => void, args: Array<*>): void {
-		this.applyMiddlewares(methodName, args).then(_args => fn(..._args));
+		this.applyMiddlewares(methodName, args, fn);
 	}
 
 	registerMethod(methodName: string) {
@@ -346,23 +346,19 @@ class UnicornLogger implements Extensible {
 		};
 	}
 
-	applyMiddlewares(methodName: string, args: Array<*>): Promise<Array<*>> {
+	applyMiddlewares(methodName: string, args: Array<*>, baseFn: ?(...args: Array<*>) => void = undefined): void {
 		const middlewares = UnicornLogger.globalMiddlewares.concat(this.middlewares);
 		const iterator = middlewares.values();
-		const done = new Promise((resolve, reject) => {
-			const callMiddleware = (_args): void => {
-				const next = (...a) => callMiddleware(a);
-				const nextMiddleware = iterator.next().value;
-				if (!nextMiddleware) {
-					resolve(_args);
-				} else if (typeof nextMiddleware.call === 'function') {
-					nextMiddleware.call(methodName, next, _args);
-				} else next(..._args);
-			};
-			callMiddleware(args);
-		});
-
-		return done;
+		const callMiddleware = (_args): void => {
+			const next = (...a) => callMiddleware(a);
+			const nextMiddleware = iterator.next().value;
+			if (!nextMiddleware) {
+				if (baseFn) baseFn(..._args);
+			} else if (typeof nextMiddleware.call === 'function') {
+				nextMiddleware.call(methodName, next, _args);
+			} else next(..._args);
+		};
+		callMiddleware(args);
 	}
 }
 
