@@ -127,7 +127,7 @@ class UnicornLogger implements Extensible {
 		 */
 		const log = logFactory(namespace);
 		log.log = consoleLog;
-		this.log = (...args) => (this.wrapMiddlewares('log', log, this.cleaner(args)), this);
+		this.log = (...args) => (this.applyMiddlewares('log', this.cleaner(args), log), this);
 
 		/**
 		 * Wraps console.assert
@@ -140,7 +140,7 @@ class UnicornLogger implements Extensible {
 		 */
 		const assert = logFactory(namespace);
 		assert.log = consoleAssert;
-		this.assert = (...args) => (this.wrapMiddlewares('assert', assert, this.cleaner(args)), this);
+		this.assert = (...args) => (this.applyMiddlewares('assert', this.cleaner(args), assert), this);
 
 		/**
 		 * Wraps console.info
@@ -153,7 +153,7 @@ class UnicornLogger implements Extensible {
 		 */
 		const info = logFactory(namespace);
 		info.log = consoleInfo;
-		this.info = (...args) => (this.wrapMiddlewares('info', info, this.cleaner(args)), this);
+		this.info = (...args) => (this.applyMiddlewares('info', this.cleaner(args), info), this);
 
 		/**
 		 * Wraps console.warn
@@ -166,7 +166,7 @@ class UnicornLogger implements Extensible {
 		 */
 		const warn = logFactory(namespace);
 		warn.log = consoleWarn;
-		this.warn = (...args) => (this.wrapMiddlewares('warn', warn, this.cleaner(args)), this);
+		this.warn = (...args) => (this.applyMiddlewares('warn', this.cleaner(args), warn), this);
 
 		/**
 		 * Wraps console.error
@@ -179,7 +179,7 @@ class UnicornLogger implements Extensible {
 		 */
 		const error = logFactory(namespace);
 		error.log = consoleError;
-		this.error = (...args) => (this.wrapMiddlewares('error', error, this.cleaner(args)), this);
+		this.error = (...args) => (this.applyMiddlewares('error', this.cleaner(args), error), this);
 
 		/**
 		 * Wraps console.trace
@@ -192,7 +192,7 @@ class UnicornLogger implements Extensible {
 		 */
 		const trace = logFactory(namespace);
 		trace.log = consoleTrace;
-		this.trace = (...args) => (this.wrapMiddlewares('trace', trace, this.cleaner(args)), this);
+		this.trace = (...args) => (this.applyMiddlewares('trace', this.cleaner(args), trace), this);
 
 		/**
 		 * Wraps console.table
@@ -206,7 +206,7 @@ class UnicornLogger implements Extensible {
 		 */
 		const table = logFactory(namespace);
 		table.log = consoleTable;
-		this.table = (...args) => (this.wrapMiddlewares('table', table, this.cleaner(args)), this);
+		this.table = (...args) => (this.applyMiddlewares('table', this.cleaner(args), table), this);
 
 		/**
 		 * Wraps console.group
@@ -219,7 +219,7 @@ class UnicornLogger implements Extensible {
 		 */
 		const group = logFactory(namespace);
 		group.log = consoleGroup;
-		this.group = (...args) => (this.wrapMiddlewares('group', group, this.cleaner(args)), this);
+		this.group = (...args) => (this.applyMiddlewares('group', this.cleaner(args), group), this);
 
 		/**
 		 * Wraps console.groupCollapsed
@@ -232,7 +232,7 @@ class UnicornLogger implements Extensible {
 		 */
 		const groupCollapsed = logFactory(namespace);
 		groupCollapsed.log = consoleGroupCollapsed;
-		this.groupCollapsed = (...args) => (this.wrapMiddlewares('groupCollapsed', groupCollapsed, this.cleaner(args)), this);
+		this.groupCollapsed = (...args) => (this.applyMiddlewares('groupCollapsed', this.cleaner(args), groupCollapsed), this);
 
 		/**
 		 * Wraps console.clear
@@ -244,7 +244,7 @@ class UnicornLogger implements Extensible {
 		 */
 		const clear = logFactory(namespace);
 		clear.log = () => consoleClear();
-		this.clear = () => (this.wrapMiddlewares('clear', clear, []), this);
+		this.clear = () => (this.applyMiddlewares('clear', [], clear), this);
 
 		/**
 		 * Wraps groupEnd
@@ -256,7 +256,7 @@ class UnicornLogger implements Extensible {
 		 */
 		const groupEnd = logFactory(namespace);
 		groupEnd.log = () => consoleGroupEnd();
-		this.groupEnd = () => (this.wrapMiddlewares('groupEnd', groupEnd, []), this);
+		this.groupEnd = () => (this.applyMiddlewares('groupEnd', [], groupEnd), this);
 
 		/**
 		 * Implements console.time functionality
@@ -276,7 +276,7 @@ class UnicornLogger implements Extensible {
 			}
 			timers.set(label, Date.now());
 		};
-		this.time = label => (this.wrapMiddlewares('time', time, [label]), this);
+		this.time = label => (this.applyMiddlewares('time', [ label ], time), this);
 
 		/**
 		 * Implements console.timeEnd functionality
@@ -298,7 +298,7 @@ class UnicornLogger implements Extensible {
 			timers.delete(label);
 			this.log(`label: ${timePassed}ms`);
 		};
-		this.timeEnd = label => (this.wrapMiddlewares('timeEnd', timeEnd, [label]), this);
+		this.timeEnd = label => (this.applyMiddlewares('timeEnd', [ label ], timeEnd), this);
 
 		/*
 		return Object.assign(
@@ -307,10 +307,6 @@ class UnicornLogger implements Extensible {
 			this
 		);
 		*/
-	}
-
-	wrapMiddlewares(methodName: string, fn: (args: Array<*>) => void, args: Array<*>): void {
-		this.applyMiddlewares(methodName, args, fn);
 	}
 
 	registerMethod(methodName: string) {
