@@ -299,14 +299,6 @@ class UnicornLogger implements Extensible {
 			this.log(`label: ${timePassed}ms`);
 		};
 		this.timeEnd = label => (this.applyMiddlewares('timeEnd', [ label ], timeEnd), this);
-
-		/*
-		return Object.assign(
-			(...args: Array<*>) => this.log(args),
-			{ debug: log },
-			this
-		);
-		*/
 	}
 
 	/**
