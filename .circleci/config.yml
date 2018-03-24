@@ -18,9 +18,9 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
-#      - run:
-#          name: test
-#          command: yarn run test src
+      - run:
+          name: test
+          command: yarn run test src
       - run:
           name: bundle
           command: yarn run bundle
