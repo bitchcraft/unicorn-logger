@@ -309,12 +309,36 @@ class UnicornLogger implements Extensible {
 		*/
 	}
 
+	/**
+	 * Allows middlewares to register new methods to an instance of UnicornLogger
+	 * @public
+	 * @method registerMethod
+	 * @param  {string} methodName Name of the method to add
+	 * @return {void}
+	 * @example
+	 *
+	 * initialize(logger) {
+	 *   logger.registerMethod('foo');
+	 * }
+	 */
 	registerMethod(methodName: string) {
 		if (this[methodName]) return typeof this[methodName] === 'function';
 		this[methodName] = UnicornLogger.applyMethod(methodName);
 		return true;
 	}
 
+	/**
+	 * Allows middlewares to register new methods to UnicornLogger
+	 * @public
+	 * @method registerMethod
+	 * @param  {string} methodName Name of the method to add
+	 * @return {void}
+	 * @example
+	 *
+	 * initialize(logger) {
+	 *   logger.registerMethod('foo');
+	 * }
+	 */
 	static registerMethod(methodName: string) {
 		/* eslint-disable no-prototype-builtins */
 		if (UnicornLogger.hasOwnProperty(methodName)) return typeof UnicornLogger.prototype[methodName] === 'function';
@@ -323,18 +347,41 @@ class UnicornLogger implements Extensible {
 		return true;
 	}
 
+	/**
+	 * Adds a middleware to an instance of UnicornLogger
+	 * @public
+	 * @method use
+	 * @param  {UnicornLoggerMiddleware} middleware The middleware to add
+	 * @return {void}
+	 * @example logger.use(new ExampleMiddleware());
+	 */
 	use(middleware: UnicornLoggerMiddleware) {
 		if (typeof middleware.initialize === 'function') middleware.initialize(this);
 		// $FlowIssue wrong libdef?
 		this.middlewares = this.middlewares.add(middleware);
 	}
 
+	/**
+	 * Adds a middleware to UnicornLogger
+	 * @public
+	 * @method use
+	 * @param  {UnicornLoggerMiddleware} middleware The middleware to add
+	 * @return {void}
+	 * @example UnicornLogger.use(new ExampleMiddleware());
+	 */
 	static use(middleware: UnicornLoggerMiddleware) {
 		if (typeof middleware.initialize === 'function') middleware.initialize(UnicornLogger);
 		// $FlowIssue wrong libdef?
 		UnicornLogger.globalMiddlewares = UnicornLogger.globalMiddlewares.add(middleware);
 	}
 
+	/**
+	 * Generates a method, which calls all middlewares
+	 * @private
+	 * @method applyMethod
+	 * @param  {string} methodName The name of the method to generate
+	 * @return {function}          The generated logging function
+	 */
 	static applyMethod(methodName: string) {
 		return function(...args: Array<*>) {
 			this.applyMiddlewares(methodName, args);
@@ -342,6 +389,15 @@ class UnicornLogger implements Extensible {
 		};
 	}
 
+	/**
+	 * Applies global and instance middlewares and calls the given base function afterwards
+	 * @private
+	 * @method applyMiddlewares
+	 * @param  {string} methodName The name of the method being called
+	 * @param  {Array} args        The arguments the method was called with
+	 * @param  {Function} baseFn   The function to be called after all middlewares have been called
+	 * @return {void}
+	 */
 	applyMiddlewares(methodName: string, args: Array<*>, baseFn: ?(...args: Array<*>) => void = undefined): void {
 		const middlewares = UnicornLogger.globalMiddlewares.concat(this.middlewares);
 		const iterator = middlewares.values();
