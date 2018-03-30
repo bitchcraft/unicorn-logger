@@ -30,6 +30,7 @@ export interface UnicornLoggerMiddleware {
 	 * @public
 	 * @method call
 	 * @param {string} methodName Name of the method being called
+	 * @param {UnicornLogger} logger Instance of UnicornLogger the method was called on
 	 * @param {function(args)} next Next function used to call the nex middleware,
 	 * use this with the members of args as params.
 	 * You can also choose to cancel the call by not calling next, this will also
@@ -38,12 +39,12 @@ export interface UnicornLoggerMiddleware {
 	 * @returns {void}
 	 * @example
 	 *
-	 * call(method, next, args) {
+	 * call(method, logger, next, args) {
 	 *   if (method === '') {
 	 *     this.fn(...args);
 	 *   }
 	 *   next(...args);
 	 * }
 	 */
-	call?: (methodName: string, next: (...args: Array<*>) => void, args: Array<*>) => void;
+	call?: (methodName: string, logger: UnicornLogger, next: (...args: Array<*>) => void, args: Array<*>) => void;
 }

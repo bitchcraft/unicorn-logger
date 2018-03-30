@@ -71,6 +71,7 @@ const defaultCleaner = (args: Array<*>) => args;
  *     .groupEnd();
  */
 class UnicornLogger implements Extensible {
+	namespace: string;
 	assert: (...args: Array<*>) => UnicornLogger;
 	clear: () => UnicornLogger;
 	group: (...args: Array<*>) => UnicornLogger;
@@ -111,6 +112,7 @@ class UnicornLogger implements Extensible {
 		maxTimers = MAX_TIMERS,
 	}: Options = {}) {
 
+		this.namespace = namespace;
 		this.cleaner = cleaner;
 		this.maxTimers = maxTimers;
 		this.timers = new Map();
@@ -399,7 +401,7 @@ class UnicornLogger implements Extensible {
 			if (!nextMiddleware) {
 				if (baseFn) baseFn(..._args);
 			} else if (typeof nextMiddleware.call === 'function') {
-				nextMiddleware.call(methodName, next, _args);
+				nextMiddleware.call(methodName, this, next, _args);
 			} else next(..._args);
 		};
 		callMiddleware(args);

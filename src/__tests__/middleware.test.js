@@ -52,8 +52,8 @@ const resetUnicornLogger = () => {
 const loggerNamespace = 'jest';
 
 class DummyMiddleware {
-	call(method, next, args) {
-		return next(...args);
+	constructor() {
+		this.call = jest.fn((method, logger, next, args) => next(...args));
 	}
 }
 
@@ -61,7 +61,7 @@ class SuffixMiddleware {
 	constructor(suffix) {
 		this.suffix = suffix;
 	}
-	call(methods, next, args) {
+	call(methods, logger, next, args) {
 		return next(...args, this.suffix);
 	}
 }
@@ -74,7 +74,7 @@ class FunctionMiddleware {
 	initialize(logger) {
 		logger.registerMethod(this.functionName);
 	}
-	call(method, next, args) {
+	call(method, logger, next, args) {
 		if (method === this.functionName) {
 			this.fn(...args);
 		}
@@ -84,7 +84,7 @@ class FunctionMiddleware {
 
 class CancelCallMiddleware {
 	/* eslint-disable consistent-return */
-	call(method, next, args) {
+	call(method, logger, next, args) {
 		if (method !== 'log') {
 			return next(...args);
 		}
@@ -251,5 +251,22 @@ describe('UnicornLogger', () => {
 		logger.log(...args);
 
 		expect(consoleLog).toHaveBeenLastCalledWith(`${loggerNamespace} ${args[0]}`, ...args.slice(1), suffix2, suffix1);
+	});
+
+	it('passes the instance a method is called on to middlewares', () => {
+		const args = [ 'calling log', { test: true } ];
+		const ns1 = `${loggerNamespace}:1`;
+		const ns2 = `${loggerNamespace}:2`;
+		const middleware = new DummyMiddleware();
+		UnicornLogger.use(middleware);
+		const logger1 = new UnicornLogger(ns1);
+		const logger2 = new UnicornLogger(ns2);
+
+		logger1.log(args);
+		logger2.log(args);
+
+		expect(middleware.call).toHaveBeenCalledTimes(2);
+		expect(middleware.call.mock.calls[1][1]).toEqual(logger2);
+		expect(middleware.call.mock.calls[1][1].namespace).toEqual(ns2);
 	});
 });
