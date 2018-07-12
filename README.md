@@ -82,6 +82,26 @@ logger.group('new console group')
 import UnicornLogger from '@bitchcraft/unicorn-logger/src/UnicornLogger';
 ```
 
+# Plugins/Middlewares
+
+UnicornLogger can be extended trough middlewares/plugins.
+A middleware can:
+* react to logging calls
+* manipulate call arguments
+* cancel the further execution of logging calls
+* register its own logging functions
+
+Middlewares can be easily added to an instance or globally to the logger Class. Global middlewares are applied before instance ones, both will be executed in the order they were added.
+```js
+import UnicornLogger from '@bitchcraft/unicorn-logger';
+
+const logger = new UnicornLogger('myNamespace');
+logger.use(new ExampleMiddleware()); // Instance Middleware
+UnicornLogger.use(new ExampleMiddleware()); // Global Middleware
+```
+
+For middleware development see the [wiki](https://github.com/bitchcraft/unicorn-logger)
+
 # Bundle size
 
 About core-js takes up roughly 62% of the bundle size, which should not increase your bundle size if you are running babel. After minification, the gzipped size (including core-js) should be around 13KB.

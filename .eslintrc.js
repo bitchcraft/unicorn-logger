@@ -20,6 +20,8 @@ module.exports = {
         "browser": true,
         "node": true,
         "mocha": true,
+        "jest": true,
+        "jasmine": true,
         "es6": true
     },
     "rules": {
