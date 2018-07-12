@@ -11,6 +11,7 @@
 ```
 A fancy wrapper for [debug](https://yarnpkg.com/en/package/debug) that supports all Console Web API methods and allows chaining.
 
+[![CircleCI](https://circleci.com/gh/bitchcraft/unicorn-logger.svg?style=svg&circle-token=cdf5f14ad106b6ae7eaf2f42177830b9484f3d86)](https://circleci.com/gh/bitchcraft/unicorn-logger)
 ## Installation
 
 ```sh
@@ -80,6 +81,26 @@ logger.group('new console group')
 // babel: env, stage-0, flow
 import UnicornLogger from '@bitchcraft/unicorn-logger/src/UnicornLogger';
 ```
+
+# Plugins/Middlewares
+
+UnicornLogger can be extended trough middlewares/plugins.
+A middleware can:
+* react to logging calls
+* manipulate call arguments
+* cancel the further execution of logging calls
+* register its own logging functions
+
+Middlewares can be easily added to an instance or globally to the logger Class. Global middlewares are applied before instance ones, both will be executed in the order they were added.
+```js
+import UnicornLogger from '@bitchcraft/unicorn-logger';
+
+const logger = new UnicornLogger('myNamespace');
+logger.use(new ExampleMiddleware()); // Instance Middleware
+UnicornLogger.use(new ExampleMiddleware()); // Global Middleware
+```
+
+For middleware development see the [wiki](https://github.com/bitchcraft/unicorn-logger)
 
 # Bundle size
 

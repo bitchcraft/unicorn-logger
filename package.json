@@ -5,7 +5,8 @@
 	"description": "A fancy wrapper for debug with full Console Web API support.",
 	"license": "BSD-3-Clause",
 	"dependencies": {
-		"debug": "^3.1.0"
+		"debug": "^3.1.0",
+		"immutable": "^3.8.2"
 	},
 	"devDependencies": {
 		"babel-cli": "^6.18.0",
@@ -46,10 +47,10 @@
 		]
 	},
 	"scripts": {
-		"test": "node_modules/jest/bin/jest.js",
+		"test": "jest",
 		"prestart": "yarn install && yarn run test",
 		"start": "yarn run bundle",
-		"bundle": "NODE_ENV=production ./node_modules/webpack/bin/webpack.js --progress"
+		"bundle": "NODE_ENV=production webpack --progress"
 	},
 	"author": "Josh Li (https://github.com/maddrag0n)",
 	"contributors": [
