@@ -1,6 +1,18 @@
 // @flow
 /* eslint-disable no-console, no-sequences */
 import logFactory from 'debug';
+import { OrderedSet as ImmutableOrderedSet } from 'immutable';
+
+import type { UnicornLoggerMiddleware } from 'src/UnicornLoggerMiddleware';
+
+type Options = {
+	cleaner?: Array<*> => Array<*>,
+	maxTimers?: number,
+};
+
+interface Extensible {
+	[key: string]: (...args: Array<*>) => * | void,
+}
 
 const consoleLog = typeof console.log === 'function' ? console.log.bind(console) : () => {};
 const consoleInfo = typeof console.info === 'function' ? console.info.bind(console) : consoleLog;
@@ -33,11 +45,6 @@ const consoleTable = (
 
 const defaultCleaner = (args: Array<*>) => args;
 
-type Options = {
-	cleaner?: Array<*> => Array<*>,
-	maxTimers?: number,
-};
-
 /**
  * ```js
  * import UnicornLogger from '@bitchcraft/unicorn-logger';
@@ -63,25 +70,33 @@ type Options = {
  *     .timeNed('my-group-1')
  *     .groupEnd();
  */
-class UnicornLogger {
-	assert: (...args: Array<*>) => UnicornLogger
-	clear: () => UnicornLogger
-	group: (...args: Array<*>) => UnicornLogger
-	groupCollapsed: (...args: Array<*>) => UnicornLogger
-	groupEnd: () => UnicornLogger
-	time: (label: string) => UnicornLogger
-	timeEnd: (label: string) => UnicornLogger
-	debug: (...args: Array<*>) => UnicornLogger
-	error: (...args: Array<*>) => UnicornLogger
-	info: (...args: Array<*>) => UnicornLogger
-	log: (...args: Array<*>) => UnicornLogger
-	table: (...args: Array<*>) => UnicornLogger
-	trace: (...args: Array<*>) => UnicornLogger
-	warn: (...args: Array<*>) => UnicornLogger
+class UnicornLogger implements Extensible {
+	namespace: string;
+	assert: (...args: Array<*>) => UnicornLogger;
+	clear: () => UnicornLogger;
+	group: (...args: Array<*>) => UnicornLogger;
+	groupCollapsed: (...args: Array<*>) => UnicornLogger;
+	groupEnd: () => UnicornLogger;
+	time: (label: string) => UnicornLogger;
+	timeEnd: (label: string) => UnicornLogger;
+	debug: (...args: Array<*>) => UnicornLogger;
+	error: (...args: Array<*>) => UnicornLogger;
+	info: (...args: Array<*>) => UnicornLogger;
+	log: (...args: Array<*>) => UnicornLogger;
+	table: (...args: Array<*>) => UnicornLogger;
+	trace: (...args: Array<*>) => UnicornLogger;
+	warn: (...args: Array<*>) => UnicornLogger;
 
-	cleaner: Array<*> => Array<*>
-	maxTimers: number
-	timers: Map<*, number>
+	$key: string;
+	$value: (...args: Array<*>) => UnicornLogger | void;
+
+	static globalMiddlewares: ImmutableOrderedSet<UnicornLoggerMiddleware> = new ImmutableOrderedSet();
+	middlewares: ImmutableOrderedSet<UnicornLoggerMiddleware>;
+
+	cleaner: Array<*> => Array<*>;
+	maxTimers: number;
+	timers: Map<*, number>;
+
 
 	/**
 	 * @public
@@ -97,9 +112,11 @@ class UnicornLogger {
 		maxTimers = MAX_TIMERS,
 	}: Options = {}) {
 
+		this.namespace = namespace;
 		this.cleaner = cleaner;
 		this.maxTimers = maxTimers;
 		this.timers = new Map();
+		this.middlewares = new ImmutableOrderedSet();
 
 		/**
 		 * Wraps console.log
@@ -112,7 +129,7 @@ class UnicornLogger {
 		 */
 		const log = logFactory(namespace);
 		log.log = consoleLog;
-		this.log = (...args) => (log(...this.cleaner(args)), this);
+		this.log = (...args) => (this.applyMiddlewares('log', this.cleaner(args), log), this);
 
 		/**
 		 * Wraps console.assert
@@ -125,7 +142,7 @@ class UnicornLogger {
 		 */
 		const assert = logFactory(namespace);
 		assert.log = consoleAssert;
-		this.assert = (...args) => (assert(...this.cleaner(args)), this);
+		this.assert = (...args) => (this.applyMiddlewares('assert', this.cleaner(args), assert), this);
 
 		/**
 		 * Wraps console.info
@@ -138,7 +155,7 @@ class UnicornLogger {
 		 */
 		const info = logFactory(namespace);
 		info.log = consoleInfo;
-		this.info = (...args) => (info(...this.cleaner(args)), this);
+		this.info = (...args) => (this.applyMiddlewares('info', this.cleaner(args), info), this);
 
 		/**
 		 * Wraps console.warn
@@ -151,7 +168,7 @@ class UnicornLogger {
 		 */
 		const warn = logFactory(namespace);
 		warn.log = consoleWarn;
-		this.warn = (...args) => (warn(...this.cleaner(args)), this);
+		this.warn = (...args) => (this.applyMiddlewares('warn', this.cleaner(args), warn), this);
 
 		/**
 		 * Wraps console.error
@@ -164,7 +181,7 @@ class UnicornLogger {
 		 */
 		const error = logFactory(namespace);
 		error.log = consoleError;
-		this.error = (...args) => (error(...this.cleaner(args)), this);
+		this.error = (...args) => (this.applyMiddlewares('error', this.cleaner(args), error), this);
 
 		/**
 		 * Wraps console.trace
@@ -177,7 +194,7 @@ class UnicornLogger {
 		 */
 		const trace = logFactory(namespace);
 		trace.log = consoleTrace;
-		this.trace = (...args) => (trace(...this.cleaner(args)), this);
+		this.trace = (...args) => (this.applyMiddlewares('trace', this.cleaner(args), trace), this);
 
 		/**
 		 * Wraps console.table
@@ -191,7 +208,7 @@ class UnicornLogger {
 		 */
 		const table = logFactory(namespace);
 		table.log = consoleTable;
-		this.table = (...args) => (table(...this.cleaner(args)), this);
+		this.table = (...args) => (this.applyMiddlewares('table', this.cleaner(args), table), this);
 
 		/**
 		 * Wraps console.group
@@ -204,7 +221,7 @@ class UnicornLogger {
 		 */
 		const group = logFactory(namespace);
 		group.log = consoleGroup;
-		this.group = (...args) => (group(...this.cleaner(args)), this);
+		this.group = (...args) => (this.applyMiddlewares('group', this.cleaner(args), group), this);
 
 		/**
 		 * Wraps console.groupCollapsed
@@ -217,7 +234,7 @@ class UnicornLogger {
 		 */
 		const groupCollapsed = logFactory(namespace);
 		groupCollapsed.log = consoleGroupCollapsed;
-		this.groupCollapsed = (...args) => (groupCollapsed(...this.cleaner(args)), this);
+		this.groupCollapsed = (...args) => (this.applyMiddlewares('groupCollapsed', this.cleaner(args), groupCollapsed), this);
 
 		/**
 		 * Wraps console.clear
@@ -229,7 +246,7 @@ class UnicornLogger {
 		 */
 		const clear = logFactory(namespace);
 		clear.log = () => consoleClear();
-		this.clear = () => (clear(), this);
+		this.clear = () => (this.applyMiddlewares('clear', [], clear), this);
 
 		/**
 		 * Wraps groupEnd
@@ -241,7 +258,7 @@ class UnicornLogger {
 		 */
 		const groupEnd = logFactory(namespace);
 		groupEnd.log = () => consoleGroupEnd();
-		this.groupEnd = () => (groupEnd(), this);
+		this.groupEnd = () => (this.applyMiddlewares('groupEnd', [], groupEnd), this);
 
 		/**
 		 * Implements console.time functionality
@@ -261,7 +278,7 @@ class UnicornLogger {
 			}
 			timers.set(label, Date.now());
 		};
-		this.time = label => (time(label), this);
+		this.time = label => (this.applyMiddlewares('time', [ label ], time), this);
 
 		/**
 		 * Implements console.timeEnd functionality
@@ -283,15 +300,112 @@ class UnicornLogger {
 			timers.delete(label);
 			this.log(`label: ${timePassed}ms`);
 		};
-		this.timeEnd = label => (timeEnd(label), this);
-
-		return Object.assign(
-			(...args: Array<*>) => this.log(args),
-			{ debug: log },
-			this
-		);
+		this.timeEnd = label => (this.applyMiddlewares('timeEnd', [ label ], timeEnd), this);
 	}
 
+	/**
+	 * Allows middlewares to register new methods to an instance of UnicornLogger
+	 * @public
+	 * @method registerMethod
+	 * @param  {string} methodName Name of the method to add
+	 * @return {void}
+	 * @example
+	 *
+	 * initialize(logger) {
+	 *   logger.registerMethod('foo');
+	 * }
+	 */
+	registerMethod(methodName: string) {
+		if (this[methodName]) return typeof this[methodName] === 'function';
+		this[methodName] = UnicornLogger.applyMethod(methodName);
+		return true;
+	}
+
+	/**
+	 * Allows middlewares to register new methods to UnicornLogger
+	 * @public
+	 * @method registerMethod
+	 * @param  {string} methodName Name of the method to add
+	 * @return {void}
+	 * @example
+	 *
+	 * initialize(logger) {
+	 *   logger.registerMethod('foo');
+	 * }
+	 */
+	static registerMethod(methodName: string) {
+		/* eslint-disable no-prototype-builtins */
+		if (UnicornLogger.hasOwnProperty(methodName)) return typeof UnicornLogger.prototype[methodName] === 'function';
+		/* eslint-enable no-prototype-builtins */
+		UnicornLogger.prototype[methodName] = UnicornLogger.applyMethod(methodName);
+		return true;
+	}
+
+	/**
+	 * Adds a middleware to an instance of UnicornLogger
+	 * @public
+	 * @method use
+	 * @param  {UnicornLoggerMiddleware} middleware The middleware to add
+	 * @return {void}
+	 * @example logger.use(new ExampleMiddleware());
+	 */
+	use(middleware: UnicornLoggerMiddleware) {
+		if (typeof middleware.initialize === 'function') middleware.initialize(this);
+		// $FlowIssue wrong libdef?
+		this.middlewares = this.middlewares.add(middleware);
+	}
+
+	/**
+	 * Adds a middleware to UnicornLogger
+	 * @public
+	 * @method use
+	 * @param  {UnicornLoggerMiddleware} middleware The middleware to add
+	 * @return {void}
+	 * @example UnicornLogger.use(new ExampleMiddleware());
+	 */
+	static use(middleware: UnicornLoggerMiddleware) {
+		if (typeof middleware.initialize === 'function') middleware.initialize(UnicornLogger);
+		// $FlowIssue wrong libdef?
+		UnicornLogger.globalMiddlewares = UnicornLogger.globalMiddlewares.add(middleware);
+	}
+
+	/**
+	 * Generates a method, which calls all middlewares
+	 * @private
+	 * @method applyMethod
+	 * @param  {string} methodName The name of the method to generate
+	 * @return {function}          The generated logging function
+	 */
+	static applyMethod(methodName: string) {
+		return function(...args: Array<*>) {
+			this.applyMiddlewares(methodName, args);
+			return this;
+		};
+	}
+
+	/**
+	 * Applies global and instance middlewares and calls the given base function afterwards
+	 * @private
+	 * @method applyMiddlewares
+	 * @param  {string} methodName The name of the method being called
+	 * @param  {Array} args        The arguments the method was called with
+	 * @param  {Function} baseFn   The function to be called after all middlewares have been called
+	 * @return {void}
+	 */
+	applyMiddlewares(methodName: string, args: Array<*>, baseFn: ?(...args: Array<*>) => void = undefined): void {
+		const middlewares = UnicornLogger.globalMiddlewares.concat(this.middlewares);
+		const iterator = middlewares.values();
+		const callMiddleware = (_args): void => {
+			const next = (...a) => callMiddleware(a);
+			const nextMiddleware = iterator.next().value;
+			if (!nextMiddleware) {
+				if (baseFn) baseFn(..._args);
+			} else if (typeof nextMiddleware.call === 'function') {
+				nextMiddleware.call(methodName, this, next, _args);
+			} else next(..._args);
+		};
+		callMiddleware(args);
+	}
 }
 
 export default UnicornLogger;
