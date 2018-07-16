@@ -1,3 +1,7 @@
+# 1.2.0
+
+- add plugin infrastructure
+
 # 1.1.0
 
 - fix build for browser that was introduced with 1.1.0
