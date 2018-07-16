@@ -40,7 +40,7 @@ jobs:
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
       - run:
           name: bump version
-          command: npm --no-git-tag-version version $CIRCLE_TAG
+          command: npm --no-git-tag-version --allow-same-version version $CIRCLE_TAG
       - run:
           name: publish
           command: npm publish
