@@ -1,3 +1,7 @@
+# 1.2.1
+
+- version bump
+
 # 1.2.0
 
 - add plugin infrastructure
