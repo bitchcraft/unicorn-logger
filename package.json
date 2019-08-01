@@ -44,7 +44,7 @@
 		"eslint-plugin-import": "^2.9.0",
 		"eventsource-polyfill": "^0.9.6",
 		"expect": "^24.8.0",
-		"flow-bin": "^0.103.0",
+		"flow-bin": "^0.104.0",
 		"jest": "^24.8.0",
 		"webpack": "^4.34.0",
 		"webpack-bundle-analyzer": "^3.3.2"
