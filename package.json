@@ -5,8 +5,10 @@
 	"description": "A fancy wrapper for debug with full Console Web API support.",
 	"license": "BSD-3-Clause",
 	"dependencies": {
+		"@babel/runtime-corejs2": "^7.5.5",
 		"debug": "^4.1.1",
-		"immutable": "^4.0.0-rc.12"
+		"immutable": "^4.0.0-rc.12",
+		"set-value": "^3.0.1"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.0.0",
@@ -38,8 +40,8 @@
 		"babel-plugin-add-module-exports": "^1.0.2",
 		"babel-plugin-module-resolver": "^3.1.0",
 		"eslint": "^6.0.1",
-		"eslint-config-airbnb-base": "^13.1.0",
-		"eslint-plugin-flowtype": "^3.11.1",
+		"eslint-config-airbnb-base": "^14.0.0",
+		"eslint-plugin-flowtype": "^4.2.0",
 		"eslint-plugin-flowtype-errors": "^4.1.0",
 		"eslint-plugin-import": "^2.9.0",
 		"eventsource-polyfill": "^0.9.6",
