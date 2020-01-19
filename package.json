@@ -5,7 +5,7 @@
 	"description": "A fancy wrapper for debug with full Console Web API support.",
 	"license": "BSD-3-Clause",
 	"dependencies": {
-		"@babel/runtime-corejs2": "^7.6.3",
+		"@babel/runtime-corejs3": "^7.8.3",
 		"debug": "^4.1.1",
 		"immutable": "^4.0.0-rc.12",
 		"set-value": "^3.0.1"
@@ -46,7 +46,7 @@
 		"eslint-plugin-import": "^2.9.0",
 		"eventsource-polyfill": "^0.9.6",
 		"expect": "^24.8.0",
-		"flow-bin": "^0.114.0",
+		"flow-bin": "^0.116.1",
 		"jest": "^24.8.0",
 		"webpack": "^4.34.0",
 		"webpack-bundle-analyzer": "^3.3.2"
