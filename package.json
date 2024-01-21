@@ -1,82 +1,69 @@
 {
-	"name": "@bitchcraft/unicorn-logger",
-	"version": "1.2.1",
-	"description": "A fancy wrapper for debug with full Console Web API support.",
-	"license": "BSD-3-Clause",
-	"dependencies": {
-		"@babel/runtime-corejs3": "^7.8.3",
-		"debug": "^4.1.1",
-		"immutable": "^4.0.0-rc.12",
-		"set-value": "^3.0.1"
-	},
-	"devDependencies": {
-		"@babel/cli": "^7.6.3",
-		"@babel/core": "^7.6.3",
-		"@babel/plugin-proposal-class-properties": "^7.0.0",
-		"@babel/plugin-proposal-decorators": "^7.0.0",
-		"@babel/plugin-proposal-do-expressions": "^7.0.0",
-		"@babel/plugin-proposal-export-default-from": "^7.0.0",
-		"@babel/plugin-proposal-export-namespace-from": "^7.0.0",
-		"@babel/plugin-proposal-function-bind": "^7.0.0",
-		"@babel/plugin-proposal-function-sent": "^7.0.0",
-		"@babel/plugin-proposal-json-strings": "^7.0.0",
-		"@babel/plugin-proposal-logical-assignment-operators": "^7.0.0",
-		"@babel/plugin-proposal-nullish-coalescing-operator": "^7.0.0",
-		"@babel/plugin-proposal-numeric-separator": "^7.0.0",
-		"@babel/plugin-proposal-optional-chaining": "^7.0.0",
-		"@babel/plugin-proposal-pipeline-operator": "^7.0.0",
-		"@babel/plugin-proposal-throw-expressions": "^7.0.0",
-		"@babel/plugin-syntax-dynamic-import": "^7.0.0",
-		"@babel/plugin-syntax-import-meta": "^7.0.0",
-		"@babel/plugin-transform-runtime": "^7.0.0",
-		"@babel/preset-env": "^7.6.3",
-		"@babel/preset-flow": "^7.0.0",
-		"@babel/preset-react": "^7.6.3",
-		"babel-core": "^7.0.0-bridge.0",
-		"babel-eslint": "^10.0.1",
-		"babel-jest": "^24.8.0",
-		"babel-loader": "^8.0.0",
-		"babel-plugin-add-module-exports": "^1.0.2",
-		"babel-plugin-module-resolver": "^4.0.0",
-		"eslint": "^6.0.1",
-		"eslint-config-airbnb-base": "^14.0.0",
-		"eslint-plugin-flowtype": "^4.2.0",
-		"eslint-plugin-flowtype-errors": "^4.1.0",
-		"eslint-plugin-import": "^2.9.0",
-		"eventsource-polyfill": "^0.9.6",
-		"expect": "^24.8.0",
-		"flow-bin": "^0.116.1",
-		"jest": "^24.8.0",
-		"webpack": "^4.34.0",
-		"webpack-bundle-analyzer": "^3.3.2"
-	},
-	"jest": {
-		"moduleFileExtensions": [
-			"js"
-		],
-		"moduleDirectories": [
-			"node_modules"
-		],
-		"unmockedModulePathPatterns": [
-			"babel-loader",
-			"babel-plugin-react-transform",
-			"babel-jest"
-		]
-	},
-	"scripts": {
-		"test": "jest",
-		"prestart": "yarn install && yarn run test",
-		"start": "yarn run bundle",
-		"bundle": "NODE_ENV=production webpack --progress"
-	},
-	"author": "Josh Li (https://github.com/maddrag0n)",
-	"contributors": [
-		{
-			"name": "Thiemo Krause",
-			"url": "https://github.com/thiemok"
-		}
-	],
-	"main": "lib/index.js",
-	"repository": "https://github.com/bitchcraft/unicorn-logger",
-	"packageManager": "yarn@4.0.2"
+  "name": "@bitchcraft/unicorn-logger",
+  "version": "1.2.1",
+  "description": "A fancy wrapper for debug with full Console Web API support.",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "debug": "^4.3.4"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@types/debug": "^4.1.12",
+    "@types/jest": "^29.5.11",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.29.1",
+    "husky": "^8.0.3",
+    "jest": "^29.7.0",
+    "lint-staged": "^15.2.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.3.2",
+    "vite": "^5.0.12"
+  },
+  "scripts": {
+    "test": "jest",
+    "dev": "vite",
+    "build": "vite build",
+    "check:lint": "eslint",
+    "check:types": "tsc --noEmit --pretty",
+    "prepare": "husky install",
+    "generate:yarnSdks": "yarn dlx @yarnpkg/sdks"
+  },
+  "jest": {
+    "preset": "ts-jest/presets/default-esm",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    },
+    "transform": {
+      "^.+\\.[tj]s?$": [
+        "ts-jest",
+        {
+          "useESM": true
+        }
+      ]
+    }
+  },
+  "author": "Josh Li (https://github.com/maddrag0n)",
+  "contributors": [
+    {
+      "name": "Thiemo Krause",
+      "url": "https://github.com/thiemok"
+    }
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "dist/unicorn-logger.umd.cjs",
+  "module": "dist/unicorn-logger.js",
+  "exports": {
+    ".": {
+      "import": "dist/unicorn-logger.js",
+      "require": "dist/unicorn-logger.umd.cjs"
+    }
+  },
+  "repository": "https://github.com/bitchcraft/unicorn-logger",
+  "packageManager": "yarn@4.0.2",
+  "type": "module"
 }
