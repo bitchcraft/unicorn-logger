@@ -9,6 +9,7 @@
   "devDependencies": {
     "@commitlint/config-conventional": "^18.4.4",
     "@jest/globals": "^29.7.0",
+    "@release-it/conventional-changelog": "^8.0.1",
     "@types/debug": "^4.1.12",
     "@types/jest": "^29.5.11",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
@@ -20,6 +21,7 @@
     "husky": "^8.0.3",
     "jest": "^29.7.0",
     "lint-staged": "^15.2.0",
+    "release-it": "^17.0.1",
     "ts-jest": "^29.1.1",
     "typescript": "^5.3.2",
     "vite": "^5.0.12"
@@ -31,6 +33,7 @@
     "check:lint": "eslint",
     "check:types": "tsc --noEmit --pretty",
     "prepare": "husky install",
+    "release": "release-it --ci --dry-run",
     "generate:yarnSdks": "yarn dlx @yarnpkg/sdks"
   },
   "jest": {
