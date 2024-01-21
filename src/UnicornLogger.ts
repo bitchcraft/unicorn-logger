@@ -1,20 +1,15 @@
-// @flow
 /* eslint-disable no-console, no-sequences */
 import logFactory from 'debug';
-import { OrderedSet as ImmutableOrderedSet } from 'immutable';
+import type { UnicornLoggerMiddleware } from '@/UnicornLoggerMiddleware';
 
-import type { UnicornLoggerMiddleware } from 'src/UnicornLoggerMiddleware';
-
+type Cleaner = (args: unknown[]) => unknown[]
 type Options = {
-	cleaner?: Array<*> => Array<*>,
+	cleaner?: Cleaner,
 	maxTimers?: number,
 };
 
-interface Extensible {
-	[key: string]: (...args: Array<*>) => * | void,
-}
-
 const consoleLog = typeof console.log === 'function' ? console.log.bind(console) : () => {};
+const consoleDebug = typeof console.debug === 'function' ? console.debug.bind(console) : consoleLog;
 const consoleInfo = typeof console.info === 'function' ? console.info.bind(console) : consoleLog;
 const consoleWarn = typeof console.warn === 'function' ? console.warn.bind(console) : consoleLog;
 const consoleError = typeof console.error === 'function' ? console.error.bind(console) : consoleLog;
@@ -27,7 +22,7 @@ const consoleClear = typeof console.clear === 'function' ? console.clear.bind(co
 
 const MAX_TIMERS = 1000;
 
-const logToTable = function(namespace, color1, color2, color3, ...args) {
+const logToTable = function(namespace: string, color1: string | undefined, color2: string | undefined, color3: string | undefined, ...args: unknown[]) {
 	console.group(namespace, color1, color2, color3);
 	args.forEach((arg) => {
 		if (arg && (!Array.isArray(arg) || typeof arg === 'object')) {
@@ -43,7 +38,7 @@ const consoleTable = (
 	&& typeof console.groupEnd === 'function'
 ) ? logToTable : consoleLog;
 
-const defaultCleaner = (args: Array<*>) => args;
+const defaultCleaner: Cleaner = (args) => args;
 
 /**
  * ```js
@@ -70,32 +65,46 @@ const defaultCleaner = (args: Array<*>) => args;
  *     .timeNed('my-group-1')
  *     .groupEnd();
  */
-class UnicornLogger implements Extensible {
+class UnicornLogger {
 	namespace: string;
-	assert: (...args: Array<*>) => UnicornLogger;
+
+	assert: (...args: unknown[]) => UnicornLogger;
+
 	clear: () => UnicornLogger;
-	group: (...args: Array<*>) => UnicornLogger;
-	groupCollapsed: (...args: Array<*>) => UnicornLogger;
+
+	group: (...args: unknown[]) => UnicornLogger;
+
+	groupCollapsed: (...args: unknown[]) => UnicornLogger;
+
 	groupEnd: () => UnicornLogger;
+
 	time: (label: string) => UnicornLogger;
+
 	timeEnd: (label: string) => UnicornLogger;
-	debug: (...args: Array<*>) => UnicornLogger;
-	error: (...args: Array<*>) => UnicornLogger;
-	info: (...args: Array<*>) => UnicornLogger;
-	log: (...args: Array<*>) => UnicornLogger;
-	table: (...args: Array<*>) => UnicornLogger;
-	trace: (...args: Array<*>) => UnicornLogger;
-	warn: (...args: Array<*>) => UnicornLogger;
 
-	$key: string;
-	$value: (...args: Array<*>) => UnicornLogger | void;
+	debug: (...args: unknown[]) => UnicornLogger;
 
-	static globalMiddlewares: ImmutableOrderedSet<UnicornLoggerMiddleware> = new ImmutableOrderedSet();
-	middlewares: ImmutableOrderedSet<UnicornLoggerMiddleware>;
+	error: (...args: unknown[]) => UnicornLogger;
 
-	cleaner: Array<*> => Array<*>;
+	info: (...args: unknown[]) => UnicornLogger;
+
+	log: (...args: unknown[]) => UnicornLogger;
+
+	table: (...args: unknown[]) => UnicornLogger;
+
+	trace: (...args: unknown[]) => UnicornLogger;
+
+	warn: (...args: unknown[]) => UnicornLogger;
+
+	static globalMiddlewares: UnicornLoggerMiddleware[] = [];
+
+	middlewares: UnicornLoggerMiddleware[];
+
+	cleaner: Cleaner;
+
 	maxTimers: number;
-	timers: Map<*, number>;
+
+	timers: Map<unknown, number>;
 
 
 	/**
@@ -105,7 +114,6 @@ class UnicornLogger implements Extensible {
 	 * @param {Object} Options
 	 * @param {number} [Options.maxTimers=1000] - maximum number of timers that can be created
 	 * @param {function} [Options.cleaner] - clean up function for args
-	 * @returns {this}
 	 */
 	constructor(namespace: string, {
 		cleaner = defaultCleaner,
@@ -116,7 +124,7 @@ class UnicornLogger implements Extensible {
 		this.cleaner = cleaner;
 		this.maxTimers = maxTimers;
 		this.timers = new Map();
-		this.middlewares = new ImmutableOrderedSet();
+		this.middlewares = [];
 
 		/**
 		 * Wraps console.log
@@ -156,6 +164,19 @@ class UnicornLogger implements Extensible {
 		const info = logFactory(namespace);
 		info.log = consoleInfo;
 		this.info = (...args) => (this.applyMiddlewares('info', this.cleaner(args), info), this);
+
+		/**
+		 * Wraps console.debug
+		 *
+		 * @public
+		 * @method debug
+		 * @param  {...args} args
+		 * @return {this}
+		 * @example logger.debug('important object', { important: false });
+		 */
+		const debug = logFactory(namespace);
+		debug.log = consoleDebug;
+		this.debug = (...args) => (this.applyMiddlewares('debug', this.cleaner(args), debug), this);
 
 		/**
 		 * Wraps console.warn
@@ -270,7 +291,7 @@ class UnicornLogger implements Extensible {
 		 * @example logger.time('timer-one');
 		 */
 		const time = logFactory(namespace);
-		time.log = (ns, c1, c2, c3, label: *) => {
+		time.log = (ns, c1, c2, c3, label: unknown) => {
 			const { maxTimers: MaxTimers, timers } = this;
 			if (Array.from(timers.keys()).length >= MaxTimers) {
 				this.warn(`Failed call to .time(${label}). You have exceeded the maximum number of timers (${MaxTimers}) for this Logger instance.`);
@@ -278,7 +299,7 @@ class UnicornLogger implements Extensible {
 			}
 			timers.set(label, Date.now());
 		};
-		this.time = label => (this.applyMiddlewares('time', [ label ], time), this);
+		this.time = (label) => (this.applyMiddlewares('time', [ label ], time), this);
 
 		/**
 		 * Implements console.timeEnd functionality
@@ -290,7 +311,7 @@ class UnicornLogger implements Extensible {
 		 * @example logger.timeEnd('timer-one');
 		 */
 		const timeEnd = logFactory(namespace);
-		timeEnd.log = (ns, c1, c2, c3, label: *) => {
+		timeEnd.log = (ns, c1, c2, c3, label: unknown) => {
 			const { timers } = this;
 			if (!timers.has(label)) {
 				this.error(`No timer with the label ${label} exists for this Logger instance.`);
@@ -300,7 +321,7 @@ class UnicornLogger implements Extensible {
 			timers.delete(label);
 			this.log(`label: ${timePassed}ms`);
 		};
-		this.timeEnd = label => (this.applyMiddlewares('timeEnd', [ label ], timeEnd), this);
+		this.timeEnd = (label) => (this.applyMiddlewares('timeEnd', [ label ], timeEnd), this);
 	}
 
 	/**
@@ -316,7 +337,12 @@ class UnicornLogger implements Extensible {
 	 * }
 	 */
 	registerMethod(methodName: string) {
-		if (this[methodName]) return typeof this[methodName] === 'function';
+		// @ts-expect-error -- old style api, this is extremely complex to model via typescript
+		if (this[methodName]) {
+			// @ts-expect-error -- old style api, this is extremely complex to model via typescript
+			return typeof this[methodName] === 'function';
+		}
+		// @ts-expect-error -- old style api, this is extremely complex to model via typescript
 		this[methodName] = UnicornLogger.applyMethod(methodName);
 		return true;
 	}
@@ -335,8 +361,12 @@ class UnicornLogger implements Extensible {
 	 */
 	static registerMethod(methodName: string) {
 		/* eslint-disable no-prototype-builtins */
-		if (UnicornLogger.hasOwnProperty(methodName)) return typeof UnicornLogger.prototype[methodName] === 'function';
+		if (UnicornLogger.hasOwnProperty(methodName)) {
+			// @ts-expect-error -- old style api, this is extremely complex to model via typescript
+			return typeof UnicornLogger.prototype[methodName] === 'function';
+		}
 		/* eslint-enable no-prototype-builtins */
+		// @ts-expect-error -- old style api, this is extremely complex to model via typescript
 		UnicornLogger.prototype[methodName] = UnicornLogger.applyMethod(methodName);
 		return true;
 	}
@@ -350,9 +380,13 @@ class UnicornLogger implements Extensible {
 	 * @example logger.use(new ExampleMiddleware());
 	 */
 	use(middleware: UnicornLoggerMiddleware) {
-		if (typeof middleware.initialize === 'function') middleware.initialize(this);
-		// $FlowIssue wrong libdef?
-		this.middlewares = this.middlewares.add(middleware);
+		if (typeof middleware.initialize === 'function') {
+			middleware.initialize(this);
+		}
+
+		if (!this.middlewares.includes(middleware)) {
+			this.middlewares.push(middleware);
+		}
 	}
 
 	/**
@@ -363,10 +397,14 @@ class UnicornLogger implements Extensible {
 	 * @return {void}
 	 * @example UnicornLogger.use(new ExampleMiddleware());
 	 */
-	static use(middleware: UnicornLoggerMiddleware) {
-		if (typeof middleware.initialize === 'function') middleware.initialize(UnicornLogger);
-		// $FlowIssue wrong libdef?
-		UnicornLogger.globalMiddlewares = UnicornLogger.globalMiddlewares.add(middleware);
+	static use(middleware: UnicornLoggerMiddleware): void {
+		if (typeof middleware.initialize === 'function') {
+			middleware.initialize(UnicornLogger);
+		}
+
+		if (!UnicornLogger.globalMiddlewares.includes(middleware)) {
+			UnicornLogger.globalMiddlewares.push(middleware);
+		}
 	}
 
 	/**
@@ -377,7 +415,7 @@ class UnicornLogger implements Extensible {
 	 * @return {function}          The generated logging function
 	 */
 	static applyMethod(methodName: string) {
-		return function(...args: Array<*>) {
+		return function(this: UnicornLogger, ...args: unknown[]) {
 			this.applyMiddlewares(methodName, args);
 			return this;
 		};
@@ -392,11 +430,11 @@ class UnicornLogger implements Extensible {
 	 * @param  {Function} baseFn   The function to be called after all middlewares have been called
 	 * @return {void}
 	 */
-	applyMiddlewares(methodName: string, args: Array<*>, baseFn: ?(...args: Array<*>) => void = undefined): void {
+	applyMiddlewares(methodName: string, args: unknown[], baseFn?: (...a: unknown[]) => void): void {
 		const middlewares = UnicornLogger.globalMiddlewares.concat(this.middlewares);
 		const iterator = middlewares.values();
-		const callMiddleware = (_args): void => {
-			const next = (...a) => callMiddleware(a);
+		const callMiddleware = (_args: unknown[]): void => {
+			const next = (...a: unknown[]) => callMiddleware(a);
 			const nextMiddleware = iterator.next().value;
 			if (!nextMiddleware) {
 				if (baseFn) baseFn(..._args);
