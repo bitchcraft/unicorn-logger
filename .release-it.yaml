@@ -1,0 +1,15 @@
+git:
+  commitMessage: 'chore(sdk): release v${version} [no ci]'
+  requireBranch: main
+  tagName: 'v${version}'
+  requireCommits: true # Only release if there are any changes to release
+github:
+  release: true
+  releaseName: 'v${version}'
+plugins:
+  '@release-it/conventional-changelog':
+    preset:
+      name: conventionalcommits
+    infile: 'CHANGELOG.md'
+npm:
+  publish: true

@@ -1,5 +1,4 @@
-// @flow
-import type UnicornLogger from 'src/UnicornLogger';
+import type UnicornLogger from '@/UnicornLogger';
 
 /**
  * Classes implementing this interface can be used as middlewares for UnicornLogger
@@ -12,7 +11,7 @@ export interface UnicornLoggerMiddleware {
 	 *
 	 * @public
 	 * @method initialize
-	 * @param {UnicornLogger | Class<UnicornLogger>} Reference to the logger instance or class, allows to register new methods
+	 * @param {UnicornLogger} Reference to the logger instance or class, allows to register new methods
 	 * @returns {void}
 	 * @example
 	 *
@@ -21,7 +20,7 @@ export interface UnicornLoggerMiddleware {
 	 * }
 	 *
 	 */
-	initialize?: (logger: UnicornLogger | Class<UnicornLogger>) => void;
+	initialize?: (logger: { registerMethod: UnicornLogger['registerMethod'] }) => void;
 
 	/**
 	 * Called whenever a logging function of UnicornLogger is called.
@@ -46,5 +45,5 @@ export interface UnicornLoggerMiddleware {
 	 *   next(...args);
 	 * }
 	 */
-	call?: (methodName: string, logger: UnicornLogger, next: (...args: Array<*>) => void, args: Array<*>) => void;
+	call?: (methodName: string, logger: UnicornLogger, next: (...args: Array<unknown>) => void, args: Array<unknown>) => void;
 }

@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
 /* eslint-disable class-methods-use-this */
-
-import { OrderedSet as ImmutableOrderedSet } from 'immutable';
+/* eslint-disable max-classes-per-file */
+import {
+	jest, describe, beforeEach, it, expect,
+} from '@jest/globals';
 
 /* Trick debug into thinking we actually want its output and disable colors and timestamp */
 process.env.DEBUG = '*,-babel';
@@ -35,18 +37,20 @@ const mockConsole = {
 };
 global.console = mockConsole;
 
+// We need to import late here to ensure console mocks are setup first
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { default: UnicornLogger } = require('@/UnicornLogger');
+
 const clearConsoleMocks = () => {
 	Object.keys(mockConsole).forEach((key) => {
 		mockConsole[key].mockClear();
 	});
 };
 
-const UnicornLogger = require('src/UnicornLogger');
-
-const UnicornLoggerPrototype = Object.assign({}, UnicornLogger.prototype);
+const UnicornLoggerPrototype = { ...UnicornLogger.prototype };
 const resetUnicornLogger = () => {
-	UnicornLogger.globalMiddlewares = new ImmutableOrderedSet();
-	UnicornLogger.protototype = Object.assign({}, UnicornLoggerPrototype);
+	UnicornLogger.globalMiddlewares = [];
+	UnicornLogger.protototype = { ...UnicornLoggerPrototype };
 };
 
 const loggerNamespace = 'jest';
@@ -61,6 +65,7 @@ class SuffixMiddleware {
 	constructor(suffix) {
 		this.suffix = suffix;
 	}
+
 	call(methods, logger, next, args) {
 		return next(...args, this.suffix);
 	}
@@ -71,9 +76,11 @@ class FunctionMiddleware {
 		this.fn = jest.fn();
 		this.functionName = 'fn';
 	}
+
 	initialize(logger) {
 		logger.registerMethod(this.functionName);
 	}
+
 	call(method, logger, next, args) {
 		if (method === this.functionName) {
 			this.fn(...args);
