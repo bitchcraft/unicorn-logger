@@ -1,5 +1,12 @@
 
 
+## [1.3.1](https://github.com/bitchcraft/unicorn-logger/compare/v1.3.0...v1.3.1) (2024-04-28)
+
+
+### Bug Fixes
+
+* add missing build step to release ci ([0082511](https://github.com/bitchcraft/unicorn-logger/commit/0082511fb66f86f6fba4a51aa489f9a2599d83da))
+
 ## [1.3.0](https://github.com/bitchcraft/unicorn-logger/compare/1.1.1...v1.3.0) (2024-04-28)
 
 
