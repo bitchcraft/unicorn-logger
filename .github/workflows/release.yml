@@ -62,6 +62,10 @@ jobs:
           cache: yarn
       - name: Install
         run: yarn install --immutable
+      - name: Build
+        env:
+          NODE_ENV: production
+        run: yarn build
       - name: Release
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
