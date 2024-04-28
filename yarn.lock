@@ -474,6 +474,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^6.19.0"
     "@typescript-eslint/parser": "npm:^6.19.0"
     commitlint: "npm:^18.4.4"
+    conventional-changelog-conventionalcommits: "npm:^7.0.0"
     debug: "npm:^4.3.4"
     eslint: "npm:^8.56.0"
     eslint-config-airbnb-base: "npm:^15.0.0"
@@ -2896,7 +2897,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"conventional-changelog-conventionalcommits@npm:^7.0.2":
+"conventional-changelog-conventionalcommits@npm:^7.0.0, conventional-changelog-conventionalcommits@npm:^7.0.2":
   version: 7.0.2
   resolution: "conventional-changelog-conventionalcommits@npm:7.0.2"
   dependencies:
