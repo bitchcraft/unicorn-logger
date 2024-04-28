@@ -41,7 +41,7 @@ jobs:
           app_id: ${{ secrets.RELEASE_BOT_APP_ID }}
           private_key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ steps.generate_token.outputs.token }}
@@ -51,8 +51,12 @@ jobs:
           global: true
           bot: ${{ vars.RELEASE_BOT_ID }}
           name: ${{ vars.RELEASE_BOT_NAME }}
+      - name: Setup npm authn
+        run : echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_PUBLISH }}" > ~/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_PUBLISH }}
       - name: Setup
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: yarn
@@ -61,5 +65,4 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
-          NPM_TOKEN: ${{ secrets.NPM_PUBLISH }}
         run: yarn release
