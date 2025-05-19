@@ -1,5 +1,12 @@
 
 
+## [1.5.0](https://github.com/bitchcraft/unicorn-logger/compare/v1.3.1...v1.5.0) (2025-05-19)
+
+
+### Features
+
+* **build:** fix build output, switch to pkgroll and expose types ([066de30](https://github.com/bitchcraft/unicorn-logger/commit/066de306affc6ec085a17113caad8d255e774008))
+
 ## [1.3.1](https://github.com/bitchcraft/unicorn-logger/compare/v1.3.0...v1.3.1) (2024-04-28)
 
 

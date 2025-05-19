@@ -1,6 +1,6 @@
 {
   "name": "@bitchcraft/unicorn-logger",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "A fancy wrapper for debug with full Console Web API support.",
   "license": "BSD-3-Clause",
   "dependencies": {
